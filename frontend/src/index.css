@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-slate-200 dark:border-slate-800;
+  }
+  body {
+    @apply text-slate-800 dark:text-slate-100;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-glass-light dark:bg-glass-dark backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-glass rounded-3xl;
+  }
+
+  .btn-gradient {
+    @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-semibold text-white
+      bg-sunset-gradient bg-[length:200%_auto] hover:bg-right transition-all duration-500 shadow-glow
+      hover:shadow-glow-pink active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-semibold
+      border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200
+      hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-300;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl bg-white/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700
+      focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder:text-slate-400 transition-all;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-sunset-gradient;
+  }
+
+  .blob {
+    @apply absolute rounded-full opacity-30 blur-3xl animate-blob pointer-events-none;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .skeleton {
+    @apply bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800
+      bg-[length:1000px_100%] animate-shimmer rounded-xl;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-300 dark:bg-brand-700 rounded-full;
+}
