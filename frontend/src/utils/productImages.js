@@ -1,5 +1,7 @@
-// Product-specific demo photography used when a product has no uploaded image.
-// These are remote Unsplash image URLs so the Vercel deployment does not need binary assets.
+// Product photography fallback system for ShopSmart AI.
+// Uploaded product images always win. Demo products use dedicated galleries;
+// every other product gets a category-matched gallery so the storefront never
+// falls back to a generic placeholder image.
 
 const PRODUCT_IMAGE_GALLERIES = {
   "Aurora Wireless Headphones": [
@@ -19,16 +21,65 @@ const PRODUCT_IMAGE_GALLERIES = {
   ],
 };
 
+const CATEGORY_IMAGE_GALLERIES = {
+  electronics: [
+    "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1523206489230-c012c64b2b48?auto=format&fit=crop&w=1200&q=90",
+  ],
+  fashion: [
+    "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=90",
+  ],
+  home: [
+    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=90",
+  ],
+  beauty: [
+    "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=1200&q=90",
+  ],
+  sports: [
+    "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1200&q=90",
+  ],
+  grocery: [
+    "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=90",
+  ],
+  books: [
+    "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1200&q=90",
+    "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1200&q=90",
+  ],
+};
+
+const normalizeCategory = (category) =>
+  String(category || "")
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and");
+
 export const getProductImages = (product) => {
   const uploadedImages = (product?.images || [])
     .map((image) => (typeof image === "string" ? image : image?.url))
     .filter(Boolean);
 
   if (uploadedImages.length) return uploadedImages;
-  return PRODUCT_IMAGE_GALLERIES[product?.name] || [];
+
+  if (PRODUCT_IMAGE_GALLERIES[product?.name]) {
+    return PRODUCT_IMAGE_GALLERIES[product.name];
+  }
+
+  return CATEGORY_IMAGE_GALLERIES[normalizeCategory(product?.category)] ||
+    CATEGORY_IMAGE_GALLERIES.electronics;
 };
 
-export const getProductImage = (product) =>
-  getProductImages(product)[0] || "https://placehold.co/600x600?text=ShopSmart+AI";
+export const getProductImage = (product) => getProductImages(product)[0];
 
 export default PRODUCT_IMAGE_GALLERIES;
