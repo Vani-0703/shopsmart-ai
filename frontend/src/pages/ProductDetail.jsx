@@ -8,6 +8,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import ReviewList from "../components/ReviewList";
 import ProductCard from "../components/ProductCard";
 import toast from "react-hot-toast";
+import { getProductImages } from "../utils/productImages";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -21,6 +22,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     setLoading(true);
+    setActiveImage(0);
     api.get(`/products/${id}`).then(({ data }) => {
       setProduct(data.product);
       setLoading(false);
@@ -37,6 +39,7 @@ const ProductDetail = () => {
   if (loading) return <LoadingSpinner fullScreen />;
   if (!product) return <div className="text-center py-20">Product not found.</div>;
 
+  const images = getProductImages(product);
   const hasDiscount = product.discountPrice > 0 && product.discountPrice < product.price;
   const displayPrice = hasDiscount ? product.discountPrice : product.price;
 
@@ -47,24 +50,36 @@ const ProductDetail = () => {
         <div>
           <div className="glass-card aspect-square overflow-hidden mb-3">
             <img
-              src={product.images?.[activeImage]?.url || "https://placehold.co/600x600"}
+              src={images[activeImage] || "https://placehold.co/600x600?text=ShopSmart+AI"}
               alt={product.name}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = "https://placehold.co/600x600?text=ShopSmart+AI";
+              }}
             />
           </div>
-          <div className="flex gap-2">
-            {product.images?.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveImage(i)}
-                className={`w-16 h-16 rounded-xl overflow-hidden border-2 ${
-                  activeImage === i ? "border-brand-500" : "border-transparent"
-                }`}
-              >
-                <img src={img.url} alt="" className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
+          {images.length > 1 && (
+            <div className="flex gap-2">
+              {images.map((img, i) => (
+                <button
+                  key={img + i}
+                  onClick={() => setActiveImage(i)}
+                  className={`w-16 h-16 rounded-xl overflow-hidden border-2 ${
+                    activeImage === i ? "border-brand-500" : "border-transparent"
+                  }`}
+                >
+                  <img
+                    src={img}
+                    alt={`${product.name} view ${i + 1}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://placehold.co/100x100?text=Photo";
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Info */}
