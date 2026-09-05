@@ -5,6 +5,7 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import toast from "react-hot-toast";
+import { getProductImage } from "../utils/productImages";
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
@@ -35,10 +36,13 @@ const ProductCard = ({ product }) => {
       <Link to={`/products/${product.slug || product._id}`} className="block">
         <div className="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-800">
           <img
-            src={product.images?.[0]?.url || "https://placehold.co/400x400?text=ShopSmart+AI"}
+            src={getProductImage(product)}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             loading="lazy"
+            onError={(e) => {
+              e.currentTarget.src = "https://placehold.co/400x400?text=ShopSmart+AI";
+            }}
           />
           {hasDiscount && (
             <span className="badge absolute top-3 left-3 bg-accent-pink text-white shadow-glow-pink">
