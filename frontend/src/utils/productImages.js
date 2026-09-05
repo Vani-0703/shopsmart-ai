@@ -1,7 +1,9 @@
-// Product photography fallback system for ShopSmart AI.
-// Uploaded product images always win. Demo products use dedicated galleries;
-// every other product gets a category-matched gallery so the storefront never
-// falls back to a generic placeholder image.
+// Product photography resolver for ShopSmart AI.
+//
+// The live catalog previously stored the same laptop photo on many products.
+// This resolver intentionally replaces that known generic/catalog laptop image
+// with a stable, product-relevant photo. Real seller uploads still win unless
+// they are one of the known generic catalog placeholders.
 
 const PRODUCT_IMAGE_GALLERIES = {
   "Aurora Wireless Headphones": [
@@ -21,63 +23,209 @@ const PRODUCT_IMAGE_GALLERIES = {
   ],
 };
 
-const CATEGORY_IMAGE_GALLERIES = {
+// Product-type keywords are checked before category keywords so, for example,
+// an "USB-C Charging Cable" gets a cable image instead of a random laptop.
+const PRODUCT_KEYWORDS = [
+  [["earbud", "airpod", "earphone"], "wireless earbuds"],
+  [["headphone"], "headphones"],
+  [["charging cable", "usb cable", "type c", "usb-c", "charger"], "charging cable"],
+  [["power bank", "powerbank"], "power bank"],
+  [["keyboard"], "computer keyboard"],
+  [["mouse"], "computer mouse"],
+  [["smartphone", "phone", "mobile"], "smartphone"],
+  [["laptop", "notebook"], "laptop computer"],
+  [["tablet"], "tablet computer"],
+  [["smartwatch", "smart watch"], "smartwatch"],
+  [["camera", "dslr"], "digital camera"],
+  [["speaker", "soundbar"], "bluetooth speaker"],
+  [["monitor", "display"], "computer monitor"],
+  [["induction", "cooktop", "stove"], "induction cooktop"],
+  [["air fryer"], "air fryer"],
+  [["blender", "mixer"], "kitchen blender"],
+  [["toaster"], "toaster"],
+  [["coffee", "espresso"], "coffee maker"],
+  [["microwave"], "microwave oven"],
+  [["kettle"], "electric kettle"],
+  [["cookware", "pan", "pot"], "cookware"],
+  [["yoga"], "yoga mat"],
+  [["dumbbell", "weight"], "dumbbells"],
+  [["treadmill"], "treadmill"],
+  [["resistance"], "resistance bands"],
+  [["fitness", "gym"], "fitness equipment"],
+  [["running", "sneaker", "shoe"], "running shoes"],
+  [["watch"], "wrist watch"],
+  [["wallet"], "leather wallet"],
+  [["sunglass", "eyewear"], "sunglasses"],
+  [["backpack"], "backpack"],
+  [["handbag", "purse"], "handbag"],
+  [["belt"], "leather belt"],
+  [["lamp", "light"], "desk lamp"],
+  [["mirror"], "home mirror"],
+  [["vase"], "home vase"],
+  [["cushion", "pillow"], "cushion"],
+  [["organizer", "storage"], "home organizer"],
+  [["sofa", "couch"], "sofa"],
+  [["chair"], "chair furniture"],
+  [["table", "desk"], "table furniture"],
+  [["bed"], "bedroom furniture"],
+  [["bookshelf", "shelf"], "bookshelf"],
+  [["tent"], "camping tent"],
+  [["camping"], "camping gear"],
+  [["hiking"], "hiking backpack"],
+  [["bicycle", "bike"], "bicycle"],
+  [["jacket", "coat"], "jacket clothing"],
+  [["shirt", "t-shirt", "tee"], "shirt clothing"],
+  [["jeans", "denim"], "jeans clothing"],
+  [["dress"], "dress clothing"],
+];
+
+const CATEGORY_KEYWORDS = {
   electronics: [
-    "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1523206489230-c012c64b2b48?auto=format&fit=crop&w=1200&q=90",
+    "wireless earbuds",
+    "smartphone",
+    "charging cable",
+    "computer keyboard",
+    "smartwatch",
+    "bluetooth speaker",
+    "digital camera",
+    "power bank",
   ],
-  fashion: [
-    "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=90",
+  kitchen: [
+    "induction cooktop",
+    "kitchen blender",
+    "air fryer",
+    "toaster",
+    "coffee maker",
+    "electric kettle",
+    "cookware",
+  ],
+  appliances: [
+    "air fryer",
+    "coffee maker",
+    "microwave oven",
+    "electric kettle",
+    "kitchen blender",
+    "induction cooktop",
+    "toaster",
+  ],
+  fitness: [
+    "dumbbells",
+    "yoga mat",
+    "resistance bands",
+    "treadmill",
+    "fitness equipment",
+    "running shoes",
+  ],
+  accessories: [
+    "leather wallet",
+    "sunglasses",
+    "backpack",
+    "handbag",
+    "wrist watch",
+    "leather belt",
   ],
   home: [
-    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=90",
+    "desk lamp",
+    "home decor",
+    "home organizer",
+    "home mirror",
+    "cushion",
+    "home vase",
   ],
-  beauty: [
-    "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=1200&q=90",
+  outdoor: [
+    "camping tent",
+    "hiking backpack",
+    "bicycle",
+    "camping gear",
+    "outdoor chair",
   ],
-  sports: [
-    "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1200&q=90",
+  furniture: [
+    "sofa",
+    "chair furniture",
+    "table furniture",
+    "bedroom furniture",
+    "bookshelf",
   ],
-  grocery: [
-    "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=90",
+  clothing: [
+    "shirt clothing",
+    "jeans clothing",
+    "jacket clothing",
+    "dress clothing",
   ],
-  books: [
-    "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1200&q=90",
-    "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1200&q=90",
+  fashion: [
+    "shirt clothing",
+    "jeans clothing",
+    "jacket clothing",
+    "dress clothing",
   ],
 };
 
-const normalizeCategory = (category) =>
-  String(category || "")
+const normalize = (value) =>
+  String(value || "")
     .trim()
     .toLowerCase()
     .replace(/&/g, "and");
+
+const hashString = (value) => {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return Math.abs(hash >>> 0);
+};
+
+const getProductKeyword = (product) => {
+  const name = normalize(product?.name);
+
+  for (const [terms, keyword] of PRODUCT_KEYWORDS) {
+    if (terms.some((term) => name.includes(term))) return keyword;
+  }
+
+  const category = normalize(product?.category);
+  const options = CATEGORY_KEYWORDS[category] || CATEGORY_KEYWORDS.electronics;
+  return options[hashString(`${name}:${product?._id || ""}`) % options.length];
+};
+
+const isKnownGenericImage = (url) => {
+  const value = String(url || "").toLowerCase();
+
+  // This is the laptop image that was stored against many live catalog items.
+  return (
+    value.includes("photo-1496181133206-80ce9b88a853") ||
+    value.includes("photo-1468495244123-6c6c332eeece") ||
+    value.includes("photo-1523206489230-c012c64b2b48")
+  );
+};
+
+const buildCatalogGallery = (product) => {
+  const name = normalize(product?.name) || "product";
+  const id = String(product?._id || product?.id || "");
+  const keyword = getProductKeyword(product);
+  const seed = hashString(`${name}:${id}:${normalize(product?.category)}`) || 1;
+
+  // LoremFlickr supports keyword-specific photos and a stable lock value, so
+  // every catalog item gets a deterministic but different relevant image.
+  return [0, 1, 2].map((offset) =>
+    `https://loremflickr.com/1200/1200/${encodeURIComponent(keyword)}?lock=${seed + offset * 7919}`
+  );
+};
 
 export const getProductImages = (product) => {
   const uploadedImages = (product?.images || [])
     .map((image) => (typeof image === "string" ? image : image?.url))
     .filter(Boolean);
 
-  if (uploadedImages.length) return uploadedImages;
+  const usableUploadedImages = uploadedImages.filter(
+    (image) => !isKnownGenericImage(image)
+  );
 
-  if (PRODUCT_IMAGE_GALLERIES[product?.name]) {
-    return PRODUCT_IMAGE_GALLERIES[product.name];
-  }
+  if (usableUploadedImages.length) return usableUploadedImages;
 
-  return CATEGORY_IMAGE_GALLERIES[normalizeCategory(product?.category)] ||
-    CATEGORY_IMAGE_GALLERIES.electronics;
+  const exactDemoGallery = PRODUCT_IMAGE_GALLERIES[product?.name];
+  if (exactDemoGallery) return exactDemoGallery;
+
+  return buildCatalogGallery(product);
 };
 
 export const getProductImage = (product) => getProductImages(product)[0];
