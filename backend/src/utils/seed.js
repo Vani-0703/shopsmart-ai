@@ -24,7 +24,11 @@ const run = async () => {
       price: 129.99,
       discountPrice: 99.99,
       stock: 50,
-      images: [{ url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e", publicId: "" }],
+      images: [
+        { url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=90", publicId: "" },
+        { url: "https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=1200&q=90", publicId: "" },
+        { url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=1200&q=90", publicId: "" },
+      ],
       tags: ["headphones", "wireless", "audio"],
     },
     {
@@ -34,7 +38,11 @@ const run = async () => {
       brand: "Nimbus",
       price: 89.99,
       stock: 80,
-      images: [{ url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff", publicId: "" }],
+      images: [
+        { url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=90", publicId: "" },
+        { url: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=1200&q=90", publicId: "" },
+        { url: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?auto=format&fit=crop&w=1200&q=90", publicId: "" },
+      ],
       tags: ["shoes", "running", "sports"],
     },
     {
@@ -44,7 +52,11 @@ const run = async () => {
       brand: "Lumen",
       price: 49.99,
       stock: 120,
-      images: [{ url: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c", publicId: "" }],
+      images: [
+        { url: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1200&q=90", publicId: "" },
+        { url: "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1200&q=90", publicId: "" },
+        { url: "https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&w=1200&q=90", publicId: "" },
+      ],
       tags: ["lamp", "smart-home", "office"],
     },
   ];
