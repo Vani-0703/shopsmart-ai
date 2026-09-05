@@ -3,6 +3,7 @@ import { Plus, Sparkles, Trash2, Edit, X, Upload } from "lucide-react";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import { getProductImage } from "../../utils/productImages";
 
 const emptyForm = {
   name: "",
@@ -142,7 +143,14 @@ const SellerProducts = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {products.map((p) => (
             <div key={p._id} className="glass-card p-4">
-              <img src={p.images?.[0]?.url || "https://placehold.co/300x300"} alt={p.name} className="w-full aspect-video object-cover rounded-xl mb-3" />
+              <img
+                src={getProductImage(p)}
+                alt={p.name}
+                className="w-full aspect-video object-cover rounded-xl mb-3"
+                onError={(e) => {
+                  e.currentTarget.src = "https://placehold.co/300x300?text=ShopSmart+AI";
+                }}
+              />
               <p className="font-semibold text-sm">{p.name}</p>
               <p className="text-xs text-slate-400 mb-2">{p.category} · Stock: {p.stock}</p>
               <p className="font-bold text-brand-500 mb-3">${p.price}</p>
